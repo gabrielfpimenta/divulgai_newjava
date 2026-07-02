@@ -1,177 +1,90 @@
 package com.itb.inf2am.divulgai.controller;
 
-import com.itb.inf2am.divulgai.model.entity.Usuario;
-import com.itb.inf2am.divulgai.model.services.UsuarioService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Base64;
-import java.util.Map;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.itb.inf2am.divulgai.dto.UsuarioDTO;
+import com.itb.inf2am.divulgai.model.entity.Usuario;
+import com.itb.inf2am.divulgai.model.services.UsuarioService;
+
+
 @RestController
-@RequestMapping("/api/v1/Usuario")
+@RequestMapping("/api/v1/usuario")
 public class UsuarioController {
 
-    @Autowired
-    private UsuarioService usuarioService;
+    private final UsuarioService usuarioService;
 
-    @GetMapping
-    public ResponseEntity<List<Usuario>> findAll() {
+    public UsuarioController(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<Usuario> create(@RequestBody Usuario usuario) {
+        Usuario createdUsuario = usuarioService.create(usuario);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUsuario);
+    }
+
+    @PutMapping(
+            value = "/{id}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<Usuario> editar(
+            @PathVariable Long id,
+            @RequestPart(required = false) MultipartFile file,
+            @RequestPart Usuario usuario) {
+
+        Usuario usuarioAtualizado = usuarioService.editar(file, id, usuario);
+        return ResponseEntity.ok(usuarioAtualizado);
+    }
+
+    @PutMapping("/{id}/alterar-senha")
+    public ResponseEntity<Usuario>  alterarSenha(@PathVariable Long id,
+            @RequestParam String newPassword) {
+        Usuario usuario = usuarioService.alterarSenha(id, newPassword);
+        return ResponseEntity.ok(usuario);
+    }
+
+    @PutMapping("/{id}/inativar")
+    public ResponseEntity<Usuario>  inativar(@PathVariable Long id) {
+        Usuario usuario = usuarioService.inativar(id);
+        return ResponseEntity.ok(usuario);
+    }
+
+    @PutMapping("/{id}/ativar")
+    public ResponseEntity<Usuario>  ativar(@PathVariable Long id) {
+        Usuario usuario = usuarioService.ativar(id);
+        return ResponseEntity.ok(usuario);
+    }
+
+    @GetMapping("/me")
+    public UsuarioDTO me(Authentication authentication) {
+        UsuarioDTO usuario = usuarioService
+                .findByUsername(authentication);
+        return usuario;
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<UsuarioDTO>> findAll() {
         return ResponseEntity.ok(usuarioService.findAll());
     }
 
-    @PostMapping
-    public Usuario create(@RequestBody Usuario usuario) {
-        return usuarioService.save(usuario);
-    }
-
     @GetMapping("/{id}")
-    public ResponseEntity<Object> listarUsuarioPorId(@PathVariable String id) {
-        try {
-            Long usuarioId = Long.parseLong(id);
-            Usuario usuario = usuarioService.findById(usuarioId);
-            return ResponseEntity.ok(usuario);
-
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(
-                    Map.of(
-                            "status", 400,
-                            "error", "Bad Request",
-                            "message", "O id informado não é válido: " + id
-                    )
-            );
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(
-                    Map.of(
-                            "status", 404,
-                            "error", "Not Found",
-                            "message", "Usuario não encontrado com o id " + id
-                    )
-            );
-        }
+    public ResponseEntity<UsuarioDTO> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.findById(id));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Object> atualizarUsuario(
-            @PathVariable String id,
-            @RequestBody Usuario usuario
-    ) {
-        try {
-            Long usuarioId = Long.parseLong(id);
-            Usuario usuarioExistente = usuarioService.findById(usuarioId);
-
-            usuarioExistente.setNome(usuario.getNome());
-            usuarioExistente.setEmail(usuario.getEmail());
-            usuarioExistente.setSenha(usuario.getSenha());
-            usuarioExistente.setNivelAcesso(usuario.getNivelAcesso());
-            usuarioExistente.setPs_01(usuario.getPs_01());
-            usuarioExistente.setPs_02(usuario.getPs_02());
-            usuarioExistente.setFoto(usuario.getFoto());
-            usuarioExistente.setStatusUsuario(usuario.getStatusUsuario());
-
-            Usuario usuarioAtualizado = usuarioService.save(usuarioExistente);
-
-            return ResponseEntity.ok(usuarioAtualizado);
-
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(
-                    Map.of(
-                            "status", 400,
-                            "error", "Bad Request",
-                            "message", "O id informado não é válido: " + id
-                    )
-            );
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(
-                    Map.of(
-                            "status", 404,
-                            "error", "Not Found",
-                            "message", "Usuario não encontrado com o id " + id
-                    )
-            );
-        }
-    }
-
-    @PutMapping("/{id}/foto")
-    public ResponseEntity<Object> atualizarFotoUsuario(
-            @PathVariable String id,
-            @RequestBody Map<String, String> body
-    ) {
-        try {
-            Long usuarioId = Long.parseLong(id);
-            Usuario usuarioExistente = usuarioService.findById(usuarioId);
-
-            String foto = body.get("foto");
-
-            byte[] fotoBytes = Base64.getDecoder().decode(foto);
-
-            usuarioExistente.setFoto(fotoBytes);
-
-            Usuario usuarioAtualizado = usuarioService.save(usuarioExistente);
-
-            return ResponseEntity.ok(usuarioAtualizado);
-
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(
-                    Map.of(
-                            "status", 400,
-                            "error", "Bad Request",
-                            "message", "O id informado não é válido: " + id
-                    )
-            );
-
-        } catch (IllegalArgumentException e) {
-            // erro de base64 inválido
-            return ResponseEntity.badRequest().body(
-                    Map.of(
-                            "status", 400,
-                            "error", "Bad Request",
-                            "message", "Imagem em formato inválido (base64)"
-                    )
-            );
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(
-                    Map.of(
-                            "status", 404,
-                            "error", "Not Found",
-                            "message", "Usuario não encontrado com o id " + id
-                    )
-            );
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> excluirUsuario(@PathVariable String id) {
-        try {
-            Long usuarioId = Long.parseLong(id);
-            usuarioService.delete(usuarioId);
-
-            return ResponseEntity.ok(
-                    Map.of("message", "Usuario deletado com sucesso")
-            );
-
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(
-                    Map.of(
-                            "status", 400,
-                            "error", "Bad Request",
-                            "message", "O id informado não é válido: " + id
-                    )
-            );
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body(
-                    Map.of(
-                            "status", 404,
-                            "error", "Not Found",
-                            "message", "Usuario não encontrado com o id " + id
-                    )
-            );
-        }
-    }
 }

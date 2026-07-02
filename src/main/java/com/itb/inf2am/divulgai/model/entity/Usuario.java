@@ -1,7 +1,14 @@
 package com.itb.inf2am.divulgai.model.entity;
 
 import java.time.LocalDateTime;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "Usuario")
@@ -11,42 +18,30 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 100, nullable = false)
+    @Column(nullable = false, length = 100)
     private String nome;
 
-    @Column(length = 100, nullable = false, unique = true)
-    private String email;
+    @Column(nullable = false, length = 100, unique = true)
+    private String username;
 
-    @Column(length = 100, nullable = false)
-    private String senha;
+    @Column(nullable = false, length = 100)
+    private String password;
 
-    @Column(length = 10, nullable = true)
-    private String nivelAcesso; // ADMIN, PRESTADOR, CLIENTE
-
-
-    @Column(length = 100, nullable = false)
-    private String ps_01;
-
-
-    @Column(length = 100, nullable = false)
-    private String ps_02;
+    @Column(length = 10)
+    private String nivelAcesso; 
+    // ADMIN ou USER
 
     @Lob
-    @Column(nullable = true)
     private byte[] foto;
 
-    @Column(name = "data_cadastro", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime dataCadastro;
 
-    @PrePersist
-    protected void onCreate() {
-        this.dataCadastro = LocalDateTime.now();
-    }
+    private LocalDateTime dataAtualizacao;
 
-    @Column
-    private boolean statusUsuario;
-
-    // Getters e Setters
+    @Column(nullable = false)
+    private String statusUsuario; 
+    // ATIVO | INATIVO | TROCAR_SENHA
 
     public Long getId() {
         return id;
@@ -64,20 +59,20 @@ public class Usuario {
         this.nome = nome;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public String getSenha() {
-        return senha;
+    public String getPassword() {
+        return password;
     }
 
-    public void setSenha(String senha) {
-        this.senha = senha;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getNivelAcesso() {
@@ -86,22 +81,6 @@ public class Usuario {
 
     public void setNivelAcesso(String nivelAcesso) {
         this.nivelAcesso = nivelAcesso;
-    }
-
-    public String getPs_01() {
-        return ps_01;
-    }
-
-    public void setPs_01(String ps_01) {
-        this.ps_01 = ps_01;
-    }
-
-    public String getPs_02() {
-        return ps_02;
-    }
-
-    public void setPs_02(String ps_02) {
-        this.ps_02 = ps_02;
     }
 
     public byte[] getFoto() {
@@ -120,12 +99,19 @@ public class Usuario {
         this.dataCadastro = dataCadastro;
     }
 
-    public boolean getStatusUsuario() {
+    public LocalDateTime getDataAtualizacao() {
+        return dataAtualizacao;
+    }
+
+    public void setDataAtualizacao(LocalDateTime dataAtualizacao) {
+        this.dataAtualizacao = dataAtualizacao;
+    }
+
+    public String getStatusUsuario() {
         return statusUsuario;
     }
 
-    public void setStatusUsuario(boolean statusUsuario) {
+    public void setStatusUsuario(String statusUsuario) {
         this.statusUsuario = statusUsuario;
     }
-
 }
