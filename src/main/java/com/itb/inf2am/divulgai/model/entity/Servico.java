@@ -18,8 +18,8 @@ public class Servico {
     @Column(length = 200, nullable = false)
     private String descricao;
 
-    @Column(nullable = false)
-    private boolean statusServico;
+    @Column(name = "status_servico", length = 20, nullable = false)
+    private String statusServico;
 
     @Lob
     @Column(nullable = true)
@@ -69,11 +69,11 @@ public class Servico {
         this.descricao = descricao;
     }
 
-    public boolean getStatusServico() {
+    public String getStatusServico() {
         return statusServico;
     }
 
-    public void setStatusServico(boolean statusServico) {
+    public void setStatusServico(String statusServico) {
         this.statusServico = statusServico;
     }
 

@@ -13,7 +13,7 @@ public class Prestador {
     @Column(length = 100, nullable = false)
     private String nome;
 
-    @Column(nullable = true)
+    @Column(name = "data_nascimento", nullable = true)
     private LocalDateTime dataNascimento;
 
     @Column(length = 11, nullable = false)
@@ -28,7 +28,7 @@ public class Prestador {
     @Column(length = 100, nullable = false)
     private String logradouro;
 
-    @Column(length = 10, nullable = false)
+    @Column(name = "numero_residencial", length = 10, nullable = false)
     private String numeroResidencial;
 
     @Column(length = 100, nullable = true)
@@ -46,13 +46,17 @@ public class Prestador {
     @Column(length = 2, nullable = false)
     private String uf;
 
-    @Column(length = 20, nullable = false)
+    @Column(name = "status_prestador", length = 20, nullable = false)
     private String statusPrestador;
 
     // 🔹 Relação com Usuario
     @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
+    @JoinColumn(name = "usuario_id")
     private Usuario usuario;
+
+    @ManyToOne
+    @JoinColumn(name = "regiao_id")
+    private Regiao regiao;
 
     // ===== Getters e Setters =====
     public Long getId() {
@@ -165,6 +169,14 @@ public class Prestador {
 
     public void setStatusPrestador(String statusPrestador) {
         this.statusPrestador = statusPrestador;
+    }
+
+    public Regiao getRegiao() {
+        return regiao;
+    }
+
+    public void setRegiao(Regiao regiao) {
+        this.regiao = regiao;
     }
 
     public Usuario getUsuario() {

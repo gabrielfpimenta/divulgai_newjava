@@ -21,8 +21,8 @@ public class Regiao {
     @Column(length = 200, nullable = false)
     private String descricao;
 
-    @Column(length = 20, nullable = false)
-    private boolean statusRegiao;
+    @Column(name = "status_regiao", length = 20, nullable = false)
+    private String statusRegiao;
 
     public Long getId() {
         return id;
@@ -64,11 +64,11 @@ public class Regiao {
         this.descricao = descricao;
     }
 
-    public boolean getStatusRegiao() {
+    public String getStatusRegiao() {
         return statusRegiao;
     }
 
-    public void setStatusRegiao(boolean statusRegiao) {
+    public void setStatusRegiao(String statusRegiao) {
         this.statusRegiao = statusRegiao;
     }
 }

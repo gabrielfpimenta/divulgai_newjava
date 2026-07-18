@@ -1,6 +1,7 @@
 package com.itb.inf2am.divulgai.model.services;
 
 import com.itb.inf2am.divulgai.dto.ServicoDTO;
+import com.itb.inf2am.divulgai.dto.ServicoPesquisaDTO;
 import com.itb.inf2am.divulgai.model.entity.Categoria;
 import com.itb.inf2am.divulgai.model.entity.Prestador;
 import com.itb.inf2am.divulgai.model.entity.Servico;
@@ -9,6 +10,10 @@ import com.itb.inf2am.divulgai.model.repository.PrestadorRepository;
 import com.itb.inf2am.divulgai.model.repository.ServicoRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Base64;
@@ -30,13 +35,46 @@ public class ServicoService {
         return servicoRepository.findAll();
     }
 
+
+    public Page<ServicoPesquisaDTO> pesquisar(String nomeServico, Long categoriaId, String cidade, String uf,
+                                              String orderBy, int page, int size) {
+        int paginaSegura = Math.max(page, 0);
+        int tamanhoSeguro = Math.min(Math.max(size, 1), 100);
+        Sort sort = "contador_desc".equalsIgnoreCase(orderBy)
+                ? Sort.by(Sort.Order.desc("contador"), Sort.Order.asc("id"))
+                : Sort.by(Sort.Order.asc("nome"), Sort.Order.asc("id"));
+        Pageable pageable = PageRequest.of(paginaSegura, tamanhoSeguro, sort);
+
+        return servicoRepository.pesquisarServicos(
+                normalizarTexto(nomeServico),
+                categoriaId,
+                normalizarTexto(cidade),
+                normalizarUf(uf),
+                "ATIVO",
+                "ATIVO",
+                pageable
+        );
+    }
+
+    private String normalizarTexto(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
+        return valor.trim();
+    }
+
+    private String normalizarUf(String uf) {
+        String valor = normalizarTexto(uf);
+        return valor == null ? null : valor.toUpperCase();
+    }
+
     public Servico findById(Long id) {
         return servicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Serviço não encontrado: " + id));
     }
 
     public Servico save(Servico servico) {
-        servico.setStatusServico(true);
+        servico.setStatusServico("ATIVO");
         return servicoRepository.save(servico);
     }
 
@@ -50,7 +88,7 @@ public class ServicoService {
 
         servico.setNome(dto.getNome());
         servico.setDescricao(dto.getDescricao());
-        servico.setStatusServico(true);
+        servico.setStatusServico("ATIVO");
 
         Integer contador = dto.getContador();
         if (contador == null) {
