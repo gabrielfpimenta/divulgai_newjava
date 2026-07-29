@@ -18,7 +18,7 @@ public class Servico {
     @Column(length = 200, nullable = false)
     private String descricao;
 
-    @Column(nullable = false)
+    @Column(name = "status_servico", nullable = false)
     private boolean statusServico;
 
     @Lob

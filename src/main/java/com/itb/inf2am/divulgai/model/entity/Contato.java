@@ -8,13 +8,13 @@ public class Contato {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 50, nullable = false)
+    @Column(name = "tipo_contato", length = 50, nullable = false)
     private String tipoContato;
 
     @Column(length = 255, nullable = false)
     private String link;
 
-    @Column(length = 20, nullable = false)
+    @Column(name = "status_contato", length = 20, nullable = false)
     private String statusContato;
 
     // Substitui o ManyToOne: só guarda o id do prestador

@@ -22,20 +22,20 @@ public class Feedback {
    private String descricao;
 
 
-    @Column(length = 50, nullable = false)
+    @Column(name = "tipo_feedback", length = 50, nullable = false)
     private String tipoFeedback;
 
 
-    @Column(nullable = false)
+    @Column(name = "data_cadastro", nullable = false)
    private LocalDateTime dataCadastro;
 
-    @Column(length = 20, nullable = false)
+    @Column(name = "status_feedback", length = 20, nullable = false)
    private String statusFeedback;
 
-    @Column(nullable = false)
+    @Column(name = "usuario_id", nullable = false)
     private Long usuarioId;
 
-    @Column(nullable = false)
+    @Column(name = "prestador_id", nullable = false)
     private Long prestadorId;
 
     // getters e setters
