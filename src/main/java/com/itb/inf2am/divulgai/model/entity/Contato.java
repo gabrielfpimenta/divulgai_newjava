@@ -18,9 +18,9 @@ public class Contato {
     private String statusContato;
 
     // Substitui o ManyToOne: só guarda o id do prestador
-    @Column(nullable = false)
-    private Long prestadorId;
-
+        @Column(name = "prestador_id", nullable = false)
+        private Long prestadorId;
+    
     // getters e setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
