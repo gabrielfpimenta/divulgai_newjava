@@ -19,7 +19,7 @@ import com.itb.inf2am.divulgai.model.entity.Usuario;
 import com.itb.inf2am.divulgai.model.repository.UsuarioRepository;
 
 @Service
-public class UsuarioService  implements UserDetailsService {
+public class UsuarioService implements UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
@@ -153,5 +153,12 @@ public class UsuarioService  implements UserDetailsService {
                 usuario.getStatusUsuario()
         );
     }
-}
 
+    public Usuario findEntityByUsername(String username) {
+
+        return usuarioRepository
+                .findByUsername(username)
+                .orElseThrow(()
+                        -> new RuntimeException("Usuário não encontrado."));
+    }
+}

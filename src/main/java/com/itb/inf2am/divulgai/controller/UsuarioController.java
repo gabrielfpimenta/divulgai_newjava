@@ -18,24 +18,37 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.itb.inf2am.divulgai.dto.UsuarioDTO;
+import com.itb.inf2am.divulgai.model.entity.RecuperarSenha;
 import com.itb.inf2am.divulgai.model.entity.Usuario;
+import com.itb.inf2am.divulgai.model.services.EmailService;
+import com.itb.inf2am.divulgai.model.services.RecuperarSenhaService;
 import com.itb.inf2am.divulgai.model.services.UsuarioService;
-
 
 @RestController
 @RequestMapping("/api/v1/usuario")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final RecuperarSenhaService recuperarSenhaService;
+    private final EmailService emailService;
 
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(
+            UsuarioService usuarioService,
+            RecuperarSenhaService recuperarSenhaService,
+            EmailService emailService) {
+
         this.usuarioService = usuarioService;
+        this.recuperarSenhaService = recuperarSenhaService;
+        this.emailService = emailService;
     }
 
     @PostMapping("/create")
     public ResponseEntity<Usuario> create(@RequestBody Usuario usuario) {
+
         Usuario createdUsuario = usuarioService.create(usuario);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUsuario);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(createdUsuario);
     }
 
     @PutMapping(
@@ -47,44 +60,125 @@ public class UsuarioController {
             @RequestPart(required = false) MultipartFile file,
             @RequestPart Usuario usuario) {
 
-        Usuario usuarioAtualizado = usuarioService.editar(file, id, usuario);
+        Usuario usuarioAtualizado =
+                usuarioService.editar(file, id, usuario);
+
         return ResponseEntity.ok(usuarioAtualizado);
     }
 
     @PutMapping("/{id}/alterar-senha")
-    public ResponseEntity<Usuario>  alterarSenha(@PathVariable Long id,
+    public ResponseEntity<Usuario> alterarSenha(
+            @PathVariable Long id,
             @RequestParam String newPassword) {
-        Usuario usuario = usuarioService.alterarSenha(id, newPassword);
+
+        Usuario usuario =
+                usuarioService.alterarSenha(id, newPassword);
+
         return ResponseEntity.ok(usuario);
     }
 
     @PutMapping("/{id}/inativar")
-    public ResponseEntity<Usuario>  inativar(@PathVariable Long id) {
+    public ResponseEntity<Usuario> inativar(
+            @PathVariable Long id) {
+
         Usuario usuario = usuarioService.inativar(id);
+
         return ResponseEntity.ok(usuario);
     }
 
     @PutMapping("/{id}/ativar")
-    public ResponseEntity<Usuario>  ativar(@PathVariable Long id) {
+    public ResponseEntity<Usuario> ativar(
+            @PathVariable Long id) {
+
         Usuario usuario = usuarioService.ativar(id);
+
         return ResponseEntity.ok(usuario);
+    }
+
+    @PostMapping("/recuperar-senha/enviar-codigo")
+    public ResponseEntity<String> enviarCodigo(
+            @RequestParam String email) {
+
+        Usuario usuario =
+                usuarioService.findEntityByUsername(email);
+
+        RecuperarSenha recuperarSenha =
+                recuperarSenhaService.gerarCodigo(usuario);
+
+        emailService.enviarCodigo(
+                usuario.getUsername(),
+                recuperarSenha.getCodigo());
+
+        return ResponseEntity.ok("Código enviado com sucesso.");
+    }
+
+    @PostMapping("/recuperar-senha/validar-codigo")
+    public ResponseEntity<String> validarCodigo(
+            @RequestParam String email,
+            @RequestParam String codigo) {
+
+        Usuario usuario =
+                usuarioService.findEntityByUsername(email);
+
+        boolean valido =
+                recuperarSenhaService.validarCodigo(
+                        usuario,
+                        codigo);
+
+        if (!valido) {
+            return ResponseEntity.badRequest()
+                    .body("Código inválido ou expirado.");
+        }
+
+        return ResponseEntity.ok("Código válido.");
+    }
+
+    @PostMapping("/recuperar-senha/alterar-senha")
+    public ResponseEntity<String> alterarSenhaRecuperacao(
+            @RequestParam String email,
+            @RequestParam String codigo,
+            @RequestParam String novaSenha) {
+
+        Usuario usuario =
+                usuarioService.findEntityByUsername(email);
+
+        boolean valido =
+                recuperarSenhaService.validarCodigo(
+                        usuario,
+                        codigo);
+
+        if (!valido) {
+            return ResponseEntity.badRequest()
+                    .body("Código inválido ou expirado.");
+        }
+
+        usuarioService.alterarSenha(
+                usuario.getId(),
+                novaSenha);
+
+        recuperarSenhaService.invalidarCodigo(usuario);
+
+        return ResponseEntity.ok("Senha alterada com sucesso.");
     }
 
     @GetMapping("/me")
     public UsuarioDTO me(Authentication authentication) {
-        UsuarioDTO usuario = usuarioService
-                .findByUsername(authentication);
-        return usuario;
+
+        return usuarioService.findByUsername(authentication);
     }
 
     @GetMapping("/all")
     public ResponseEntity<List<UsuarioDTO>> findAll() {
+
         return ResponseEntity.ok(usuarioService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(usuarioService.findById(id));
+    public ResponseEntity<UsuarioDTO> findById(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                usuarioService.findById(id));
     }
 
 }
