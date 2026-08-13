@@ -18,7 +18,8 @@ public class CorsConfig {
 
         // ✅ Origens permitidas (frontend)
         config.setAllowedOrigins(List.of(
-                "http://localhost:5173"
+                "http://localhost:5173",
+                "http://localhost:8081"
         ));
 
         // ✅ Métodos HTTP permitidos
