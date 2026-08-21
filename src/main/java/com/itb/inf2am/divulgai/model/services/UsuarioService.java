@@ -2,6 +2,7 @@ package com.itb.inf2am.divulgai.model.services;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 
 import org.springframework.security.authentication.DisabledException;
@@ -143,15 +144,31 @@ public class UsuarioService implements UserDetailsService {
         return toDTO(usuario);
     }
 
+    public UsuarioDTO atualizarFoto(Long id, String fotoBase64) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(()
+                        -> new RuntimeException("Usuário não encontrado"));
+
+        if (fotoBase64 == null || fotoBase64.isBlank()) {
+            throw new RuntimeException("Foto do usuário não enviada");
+        }
+
+        String fotoNormalizada = fotoBase64.contains(",")
+                ? fotoBase64.substring(fotoBase64.indexOf(",") + 1)
+                : fotoBase64;
+
+        try {
+            usuario.setFoto(Base64.getDecoder().decode(fotoNormalizada));
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Foto do usuário deve estar em Base64 válido", e);
+        }
+
+        usuario.setDataAtualizacao(LocalDateTime.now());
+        return toDTO(usuarioRepository.save(usuario));
+    }
+
     private UsuarioDTO toDTO(Usuario usuario) {
-        return new UsuarioDTO(
-                usuario.getId(),
-                usuario.getNome(),
-                usuario.getUsername(),
-                usuario.getNivelAcesso(),
-                usuario.getDataCadastro(),
-                usuario.getStatusUsuario()
-        );
+        return new UsuarioDTO(usuario);
     }
 
     public Usuario findEntityByUsername(String username) {

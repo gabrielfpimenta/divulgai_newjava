@@ -1,6 +1,9 @@
 package com.itb.inf2am.divulgai.dto;
 
 import java.time.LocalDateTime;
+import java.util.Base64;
+
+import com.itb.inf2am.divulgai.model.entity.Usuario;
 
 public class UsuarioDTO {
 
@@ -10,6 +13,7 @@ public class UsuarioDTO {
     private String nivelAcesso;
     private String statusUsuario;
     private LocalDateTime dataCadastro;
+    private String foto;
 
     public UsuarioDTO(Long id, String nome, String username, String nivelAcesso, LocalDateTime dataCadastro, String statusUsuario) {
         this.id = id;
@@ -18,6 +22,20 @@ public class UsuarioDTO {
         this.nivelAcesso = nivelAcesso;
         this.dataCadastro = dataCadastro;
         this.statusUsuario = statusUsuario;
+    }
+
+    public UsuarioDTO(Usuario usuario) {
+        this(
+                usuario.getId(),
+                usuario.getNome(),
+                usuario.getUsername(),
+                usuario.getNivelAcesso(),
+                usuario.getDataCadastro(),
+                usuario.getStatusUsuario()
+        );
+        this.foto = usuario.getFoto() != null
+                ? Base64.getEncoder().encodeToString(usuario.getFoto())
+                : null;
     }
 
     public Long getId() {
@@ -68,5 +86,12 @@ public class UsuarioDTO {
         this.dataCadastro = dataCadastro;
     }
 
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
+    }
 
 }

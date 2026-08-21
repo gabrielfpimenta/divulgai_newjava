@@ -1,6 +1,7 @@
 package com.itb.inf2am.divulgai.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -64,6 +65,15 @@ public class UsuarioController {
                 usuarioService.editar(file, id, usuario);
 
         return ResponseEntity.ok(usuarioAtualizado);
+    }
+
+    @PutMapping("/{id}/foto")
+    public ResponseEntity<UsuarioDTO> atualizarFoto(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+
+        return ResponseEntity.ok(
+                usuarioService.atualizarFoto(id, body.get("foto")));
     }
 
     @PutMapping("/{id}/alterar-senha")
