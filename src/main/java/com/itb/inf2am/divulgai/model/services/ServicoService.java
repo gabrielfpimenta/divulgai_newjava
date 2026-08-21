@@ -63,9 +63,7 @@ public class ServicoService {
 
         servico.setContador(contador);
 
-        // =========================
         // FOTO BASE64 → BYTE[]
-        // =========================
         if (dto.getFoto() != null && !dto.getFoto().isEmpty()) {
             try {
                 byte[] imagemBytes = Base64.getDecoder().decode(dto.getFoto());
@@ -94,6 +92,41 @@ public class ServicoService {
                 .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
 
         servico.setCategoria(categoria);
+
+        return servicoRepository.save(servico);
+    }
+
+    public Servico updateFromDTO(Long id, ServicoDTO dto) {
+        if (dto == null) {
+            throw new RuntimeException("DTO nulo");
+        }
+
+        Servico servico = servicoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Serviço não encontrado com o ID: " + id));
+
+        servico.setNome(dto.getNome());
+        servico.setDescricao(dto.getDescricao());
+
+        if (dto.getFoto() != null && !dto.getFoto().isEmpty()) {
+            try {
+                byte[] imagemBytes = Base64.getDecoder().decode(dto.getFoto());
+                servico.setFoto(imagemBytes);
+            } catch (Exception e) {
+                throw new RuntimeException("Erro ao decodificar imagem Base64", e);
+            }
+        }
+
+        if (dto.getPrestadorId() != null) {
+            Prestador prestador = prestadorRepository.findById(dto.getPrestadorId())
+                    .orElseThrow(() -> new RuntimeException("Prestador não encontrado: " + dto.getPrestadorId()));
+            servico.setPrestador(prestador);
+        }
+
+        if (dto.getCategoriaId() != null) {
+            Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
+                    .orElseThrow(() -> new RuntimeException("Categoria não encontrada: " + dto.getCategoriaId()));
+            servico.setCategoria(categoria);
+        }
 
         return servicoRepository.save(servico);
     }

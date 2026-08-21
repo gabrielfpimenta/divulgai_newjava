@@ -50,6 +50,22 @@ public class ServicoController {
         }
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody ServicoDTO dto) {
+        try {
+            Servico servicoAtualizado = servicoService.updateFromDTO(id, dto);
+            return ResponseEntity.ok(servicoAtualizado);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(
+                    Map.of(
+                            "status", 404,
+                            "error", "Not Found",
+                            "message", e.getMessage()
+                    )
+            );
+        }
+    }
+
     @PatchMapping("/{id}/contador")
     public ResponseEntity<Object> incrementarContador(@PathVariable Long id) {
         try {
