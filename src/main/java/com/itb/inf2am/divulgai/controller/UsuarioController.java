@@ -105,6 +105,20 @@ public class UsuarioController {
         return ResponseEntity.ok(usuario);
     }
 
+    @PutMapping(
+        value = "/{id}/dados",
+        consumes = MediaType.APPLICATION_JSON_VALUE
+)
+public ResponseEntity<Usuario> editarDados(
+        @PathVariable Long id,
+        @RequestBody Usuario usuario) {
+
+    Usuario usuarioAtualizado =
+            usuarioService.editarDados(id, usuario);
+
+    return ResponseEntity.ok(usuarioAtualizado);
+}
+
     @PostMapping("/recuperar-senha/enviar-codigo")
     public ResponseEntity<String> enviarCodigo(
             @RequestParam String email) {

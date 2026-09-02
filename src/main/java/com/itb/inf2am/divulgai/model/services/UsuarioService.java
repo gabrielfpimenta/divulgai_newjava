@@ -86,6 +86,30 @@ public class UsuarioService implements UserDetailsService {
         return usuarioRepository.save(_usuario);
     }
 
+    /* ================= EDITAR DADOS ================= */
+public Usuario editarDados(Long id, Usuario usuario) {
+
+    Usuario _usuario = usuarioRepository.findById(id)
+            .orElseThrow(()
+                    -> new RuntimeException("Usuário não encontrado"));
+
+    if (usuario.getNome() != null) {
+        _usuario.setNome(usuario.getNome());
+    }
+
+    if (usuario.getUsername() != null) {
+        _usuario.setUsername(usuario.getUsername());
+    }
+
+    if (usuario.getPassword() != null && !usuario.getPassword().isBlank()) {
+        _usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+    }
+
+    _usuario.setDataAtualizacao(LocalDateTime.now());
+
+    return usuarioRepository.save(_usuario);
+}
+
     /* ================= ALTERAR SENHA ================= */
     public Usuario alterarSenha(Long id, String novaSenha) {
         Usuario _usuario = usuarioRepository.findById(id)
