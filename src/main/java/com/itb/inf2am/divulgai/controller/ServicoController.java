@@ -28,17 +28,9 @@ public class ServicoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> listarServicoPorId(@PathVariable String id) {
+    public ResponseEntity<Object> listarServicoPorId(@PathVariable Long id) {
         try {
-            return ResponseEntity.ok(servicoService.findById(Long.parseLong(id)));
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(
-                    Map.of(
-                            "status", 400,
-                            "error", "Bad Request",
-                            "message", "ID inválido: " + id
-                    )
-            );
+            return ResponseEntity.ok(servicoService.findById(id));
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(
                     Map.of(

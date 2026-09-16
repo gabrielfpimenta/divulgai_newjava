@@ -10,6 +10,7 @@ import com.itb.inf2am.divulgai.model.repository.ServicoRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Base64;
 import java.util.List;
@@ -37,6 +38,11 @@ public class ServicoService {
 
     public Servico save(Servico servico) {
         servico.setStatusServico(true);
+
+        if (servico.getContador() == null) {
+            servico.setContador(0);
+        }
+
         return servicoRepository.save(servico);
     }
 
@@ -131,20 +137,15 @@ public class ServicoService {
         return servicoRepository.save(servico);
     }
 
+    @Transactional
     public ServicoDTO incrementarContador(Long id) {
         Servico servico = servicoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Serviço não encontrado: " + id));
 
-        Integer contadorAtual = servico.getContador();
+        servicoRepository.incrementarContadorDirect(id);
 
-        if (contadorAtual == null) {
-            contadorAtual = 0;
-        }
+        servico.setContador((servico.getContador() == null ? 0 : servico.getContador()) + 1);
 
-        servico.setContador(contadorAtual + 1);
-
-        Servico servicoSalvo = servicoRepository.save(servico);
-
-        return new ServicoDTO(servicoSalvo);
+        return new ServicoDTO(servico);
     }
 }

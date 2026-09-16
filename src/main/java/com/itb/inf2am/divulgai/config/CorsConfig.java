@@ -16,35 +16,36 @@ public class CorsConfig {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        // ✅ Origens permitidas (frontend)
+        //  Origens permitidas (frontend)
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "http://localhost:8081",
                 "https://tgsoysc-anonymous-8081.exp.direct/"
         ));
 
-        // ✅ Métodos HTTP permitidos
+        //  Métodos HTTP permitidos (INCLUÍDO O PATCH)
         config.setAllowedMethods(List.of(
                 "GET",
                 "POST",
                 "PUT",
+                "PATCH",
                 "DELETE",
                 "OPTIONS"
         ));
 
-        // ✅ Headers permitidos
+        //  Headers permitidos
         config.setAllowedHeaders(List.of(
                 "Authorization",
                 "Content-Type",
                 "Accept"
         ));
 
-        // ✅ Headers expostos para o frontend
+        //  Headers expostos para o frontend
         config.setExposedHeaders(List.of(
                 "Authorization"
         ));
 
-        // ✅ Permite cookies / sessão
+        //  Permite cookies / sessão
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =

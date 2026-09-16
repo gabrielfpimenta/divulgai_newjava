@@ -5,33 +5,47 @@ import java.util.Base64;
 
 public class ServicoDTO {
 
+    private Long id;
     private String nome;
     private String descricao;
     private String foto; // BASE64 STRING
+    private Integer contador;
 
     private Long prestadorId;
     private Long categoriaId;
 
-    // ✅ obrigatório para Jackson
+    // ✅ Obrigatório para Jackson
     public ServicoDTO() {
     }
 
     // ✔ Entity -> DTO
     public ServicoDTO(Servico servicoSalvo) {
-        this.nome = servicoSalvo.getNome();
-        this.descricao = servicoSalvo.getDescricao();
+        if (servicoSalvo != null) {
+            this.id = servicoSalvo.getId();
+            this.nome = servicoSalvo.getNome();
+            this.descricao = servicoSalvo.getDescricao();
+            this.contador = servicoSalvo.getContador();
 
-        this.foto = servicoSalvo.getFoto() != null
-                ? Base64.getEncoder().encodeToString(servicoSalvo.getFoto())
-                : null;
+            this.foto = servicoSalvo.getFoto() != null
+                    ? Base64.getEncoder().encodeToString(servicoSalvo.getFoto())
+                    : null;
 
-        this.prestadorId = servicoSalvo.getPrestador() != null
-                ? servicoSalvo.getPrestador().getId()
-                : null;
+            this.prestadorId = servicoSalvo.getPrestador() != null
+                    ? servicoSalvo.getPrestador().getId()
+                    : null;
 
-        this.categoriaId = servicoSalvo.getCategoria() != null
-                ? servicoSalvo.getCategoria().getId()
-                : null;
+            this.categoriaId = servicoSalvo.getCategoria() != null
+                    ? servicoSalvo.getCategoria().getId()
+                    : null;
+        }
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNome() {
@@ -58,6 +72,14 @@ public class ServicoDTO {
         this.foto = foto;
     }
 
+    public Integer getContador() {
+        return contador;
+    }
+
+    public void setContador(Integer contador) {
+        this.contador = contador;
+    }
+
     public Long getPrestadorId() {
         return prestadorId;
     }
@@ -72,9 +94,5 @@ public class ServicoDTO {
 
     public void setCategoriaId(Long categoriaId) {
         this.categoriaId = categoriaId;
-    }
-
-    public Integer getContador() {
-        return 0;
     }
 }
